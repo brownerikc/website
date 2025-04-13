@@ -15,9 +15,7 @@ You must have a Kubernetes cluster, and the kubectl command-line tool must be co
 * [KodeKloud](https://kodekloud.com/public-playgrounds)
 * [Play with Kubernetes](https://labs.play-with-k8s.com/)
 
-The commands in this tutorial work with kubectl version 1.14 and above. To check the version, enter ```kubectl version```.
-
-<!-- lessoncontent -->
+The commands in this tutorial work with kubectl version 1.14 and above. To check the version, enter the command ```kubectl version```.
 
 ## 1. Create a Config Map
 
@@ -34,7 +32,7 @@ data:
 EOF
 ```
 
-This creates a ConfigMap named `example-redis-config.yaml`. 
+This creates a ConfigMap file named `example-redis-config.yaml`. 
 
 Apply this ConfigMap and a Redis pod manifest using the following commands:
 
@@ -135,37 +133,37 @@ Check the initial configuration using the `kubectl exec` and `redis-cli` command
 kubectl exec -it redis -- redis-cli
 ```
 
-Get the `maxmemory` value using the following command:
+Get the `maxmemory` value using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory
 ```
 
-This should have the default value of 0:
+This should have a default value of 0:
 
 ```shell
 1) "maxmemory"
 2) "0"
 ```
 
-Get the `maxmemory-policy` value:
+Get the `maxmemory-policy` value using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory-policy
 ```
 
-This should also have the default value of `noeviction`:
+This should also have a default value of `noeviction`:
 
 ```shell
 1) "maxmemory-policy"
 2) "noeviction"
 ```
 
-Make note of these values.
+Make note of these values. These will change when you apply the configuration from the ConfigMap.
 
 ## 4. Apply Configuration Values Using the ConfigMap
 
-Now let's add some configuration values to replace the default values you just checked. Update the `example-redis-config.yaml` ConfigMap to specify a `maxmemory` value of `2mb` and a `maxmemory-policy` value of `allkeys-lru`. The ConfigMap should look like this:
+Now let's add some configuration values to replace the default values you just checked. Update the `example-redis-config` ConfigMap to specify a `maxmemory` value of `2mb` and a `maxmemory-policy` value of `allkeys-lru`. The ConfigMap should look like this:
 
 ```apiVersion: v1
 kind: ConfigMap
@@ -177,19 +175,19 @@ data:
     maxmemory-policy allkeys-lru
 ```
 
-Apply the updated ConfigMap using the following command:
+Apply the updated ConfigMap using the `kubectl apply` command:
 
 ```shell
 kubectl apply -f example-redis-config.yaml
 ```
 
-Confirm that the ConfigMap was updated using the following command:
+Confirm that the ConfigMap was updated using the `kubectl describe` command:
 
 ```shell
 kubectl describe configmap/example-redis-config
 ```
 
-You should see the configuration values you just added:
+You should see the configuration values you just added in `redis-config`:
 
 ```shell
 Name:         example-redis-config
@@ -211,7 +209,7 @@ The ConfigMap now contains these new configurations. However, if you check the R
 kubectl exec -it redis -- redis-cli
 ```
 
-Check `maxmemory` using the following command:
+Check `maxmemory` using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory
@@ -224,7 +222,7 @@ It remains the default value of 0:
 2) "0"
 ```
 
-Check `maxmemory-policy` using the following command:
+Next, check `maxmemory-policy` using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory-policy
@@ -254,7 +252,7 @@ Enter the Redis CLI again using the following command:
 kubectl exec -it redis -- redis-cli
 ```
 
-Check `maxmemory` using the following command:
+Check `maxmemory` using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory
@@ -267,7 +265,7 @@ You should now see the updated value of 2097152:
 2) "2097152"
 ```
 
-Check the `maxmemory-policy` using the following command:
+Check the `maxmemory-policy` using the `CONFIG GET` command:
 
 ```shell
 127.0.0.1:6379> CONFIG GET maxmemory-policy
@@ -282,7 +280,7 @@ You should also see the updated value of `allkeys-lru`:
 
 ## 6. Clean Up Your Environment
 
-Once you are done, you can delete the created resources using the following command:
+Once you are done, you can delete the created resources using the `kubectl delete` command:
 
 ```shell
 kubectl delete pod/redis configmap/example-redis-config
